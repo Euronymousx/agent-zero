@@ -21,7 +21,7 @@ pytest-asyncio = "*"
 "coverage[toml]" = "*"
 
 [build-system]
-requires = ["poetry-core>=1.8.0"]
+requires = ["poetry-core>=1.8,<1.9"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
