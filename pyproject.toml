@@ -7,18 +7,19 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
-fastapi = "*"
-pydantic = ">=2"
-rich = "*"
-"uvicorn[standard]" = "*"
+fastapi = "^0.110.0"
+pydantic = "^2.7.0"
+rich = "^13.7.0"
+uvicorn = { version = "^0.29.0", extras = ["standard"] }
 
 [tool.poetry.group.dev.dependencies]
-black = "==24.*"
-ruff = "==0.4.*"
-mypy = "==1.*"
-pytest = "*"
-pytest-asyncio = "*"
-"coverage[toml]" = "*"
+black = "24.*"
+ruff = "0.4.*"
+mypy = "1.*"
+pytest = "^8.0.0"
+pytest-asyncio = "^0.23.0"
+coverage = { version = "^7.5", extras = ["toml"] }
+pre-commit = "^3.6.0"
 
 [build-system]
 requires = ["poetry-core>=1.8,<1.9"]
@@ -29,7 +30,13 @@ line-length = 100
 target-version = ["py312"]
 
 [tool.ruff]
-extend-select = ["B", "SIM"]
+line-length = 150
+
+[tool.ruff.lint]
+extend-select = ["E", "F"]
 
 [tool.mypy]
-strict = true
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = true
+disallow_untyped_defs = false

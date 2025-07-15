@@ -28,8 +28,8 @@ class WebpageContentTool(Tool):
 
             # If it's not an article, fall back to BeautifulSoup
             if not article.text:
-                soup = BeautifulSoup(response.content, 'html.parser')
-                text_content = ' '.join(soup.stripped_strings)
+                soup = BeautifulSoup(response.content, "html.parser")
+                text_content = " ".join(soup.stripped_strings)
             else:
                 text_content = article.text
 

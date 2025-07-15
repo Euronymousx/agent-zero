@@ -43,5 +43,5 @@ class SchedulerTick(ApiHandler):
             "scheduler": "tick",
             "timestamp": timestamp,
             "tasks_count": tasks_count,
-            "tasks": serialized_tasks
+            "tasks": serialized_tasks,
         }

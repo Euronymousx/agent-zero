@@ -1,17 +1,13 @@
 import glob
 import os
 import hashlib
-import json
 from typing import Any, Dict, Literal, TypedDict
 from langchain_community.document_loaders import (
     CSVLoader,
-    JSONLoader,
     PyPDFLoader,
     TextLoader,
     UnstructuredHTMLLoader,
-    UnstructuredMarkdownLoader,
 )
-from python.helpers import files
 from python.helpers.log import LogItem
 from python.helpers.print_style import PrintStyle
 
@@ -98,11 +94,7 @@ def load_knowledge(
                 loader_cls = file_types_loaders[ext]
                 loader = loader_cls(
                     file_path,
-                    **(
-                        text_loader_kwargs
-                        if ext in ["txt", "csv", "html", "md"]
-                        else {}
-                    ),
+                    **(text_loader_kwargs if ext in ["txt", "csv", "html", "md"] else {}),
                 )
                 file_data["documents"] = loader.load_and_split()
                 for doc in file_data["documents"]:
@@ -121,7 +113,5 @@ def load_knowledge(
 
     PrintStyle.standard(f"Processed {cnt_docs} documents from {cnt_files} files.")
     if log_item:
-        log_item.stream(
-            progress=f"\nProcessed {cnt_docs} documents from {cnt_files} files."
-        )
+        log_item.stream(progress=f"\nProcessed {cnt_docs} documents from {cnt_files} files.")
     return index

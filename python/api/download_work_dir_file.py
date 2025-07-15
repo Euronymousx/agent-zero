@@ -1,7 +1,7 @@
 import base64
 from io import BytesIO
 
-from python.helpers.api import ApiHandler, Input, Output, Request, Response
+from python.helpers.api import ApiHandler, Input, Output, Request
 from flask import send_file
 
 from python.helpers import files, runtime
@@ -17,9 +17,7 @@ class DownloadFile(ApiHandler):
         if not file_path.startswith("/"):
             file_path = f"/{file_path}"
 
-        file = await runtime.call_development_function(
-            file_info.get_file_info, file_path
-        )
+        file = await runtime.call_development_function(file_info.get_file_info, file_path)
 
         if not file["exists"]:
             raise Exception(f"File {file_path} not found")

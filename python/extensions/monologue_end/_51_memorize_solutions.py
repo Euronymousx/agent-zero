@@ -79,9 +79,7 @@ class MemorizeSolutions(Extension):
             log_item.update(heading="No successful solutions to memorize.")
             return
         else:
-            log_item.update(
-                heading=f"{len(solutions)} successful solutions to memorize."
-            )
+            log_item.update(heading=f"{len(solutions)} successful solutions to memorize.")
 
         # save chat history
         db = await Memory.get(self.agent)
@@ -91,8 +89,8 @@ class MemorizeSolutions(Extension):
         for solution in solutions:
             # solution to plain text:
             if isinstance(solution, dict):
-                problem = solution.get('problem', 'Unknown problem')
-                solution_text = solution.get('solution', 'Unknown solution')
+                problem = solution.get("problem", "Unknown problem")
+                solution_text = solution.get("solution", "Unknown solution")
                 txt = f"# Problem\n {problem}\n# Solution\n {solution_text}"
             else:
                 # If solution is not a dict, convert it to string

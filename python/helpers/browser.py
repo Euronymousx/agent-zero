@@ -69,9 +69,7 @@ class Browser:
                         print(f"Injected script into frame: {frame.url[:100]}")
             except Exception as e:
                 # Frame might have been detached during injection, which is normal
-                print(
-                    f"Could not inject into frame (possibly detached): {str(e)[:100]}"
-                )
+                print(f"Could not inject into frame (possibly detached): {str(e)[:100]}")
 
         self.page.on(
             "frameattached",
@@ -90,10 +88,7 @@ class Browser:
             self.page_loaded = True
 
         async def handle_request(request):
-            if (
-                request.is_navigation_request()
-                and request.frame == self.page.main_frame
-            ):
+            if request.is_navigation_request() and request.frame == self.page.main_frame:
                 print(f"Navigation started to: {request.url[:100]}")
                 self.page_loaded = False
                 self.navigation_count += 1
@@ -117,10 +112,8 @@ class Browser:
             await self.page.close()
         await self.start()
         try:
-            await self.page.goto(
-                url, wait_until="networkidle", timeout=Browser.load_timeout
-            )
-        except TimeoutError as e:
+            await self.page.goto(url, wait_until="networkidle", timeout=Browser.load_timeout)
+        except TimeoutError:
             pass
         except Exception as e:
             print(f"Error opening page: {e}")
@@ -151,13 +144,11 @@ class Browser:
                             # short timeout to identify and skip unresponsive frames
                             async with asyncio.timeout(0.25):
                                 await frame.evaluate("window.location.href")
-                        except TimeoutError as e:
+                        except TimeoutError:
                             print(f"Skipping unresponsive frame: {frame.url}")
                             continue
 
-                        await frame.wait_for_load_state(
-                            "domcontentloaded", timeout=1000
-                        )
+                        await frame.wait_for_load_state("domcontentloaded", timeout=1000)
 
                         async with asyncio.timeout(1):
                             content = await frame.evaluate(
@@ -293,9 +284,7 @@ class Browser:
     async def press(self, key: str):
         await self._check_page()
         if self.last_selector:
-            await self.page.press(
-                self.last_selector, key, timeout=Browser.interact_timeout
-            )
+            await self.page.press(self.last_selector, key, timeout=Browser.interact_timeout)
         else:
             await self.page.keyboard.press(key)
 
@@ -305,7 +294,7 @@ class Browser:
         self.last_selector = selector
         try:
             await self.click(selector)
-        except Exception as e:
+        except Exception:
             pass
         await ctx.fill(selector, text, force=True, timeout=Browser.interact_timeout)
         await self.wait_tick()
@@ -328,7 +317,7 @@ class Browser:
                 ctx = self.contexts[alpha_part]
                 selector = f"[{self.selector_name}='{selector}']"
             return (ctx, selector)
-        except Exception as e:
+        except Exception:
             raise Exception(f"Error evaluating selector: {selector}")
 
     async def _check_page(self):
@@ -337,9 +326,7 @@ class Browser:
                 await self.wait_tick()
                 self.page = self.context.pages[0]
                 if not self.page:
-                    raise NoPageError(
-                        "No page is open in the browser. Please open a URL first."
-                    )
+                    raise NoPageError("No page is open in the browser. Please open a URL first.")
                 # await self.page.wait_for_load_state("networkidle",)
                 async with asyncio.timeout(self.load_timeout / 1000):
                     if not self.page_loaded:
@@ -347,7 +334,7 @@ class Browser:
                             await asyncio.sleep(0.1)
                         await self.wait_tick()
                 return
-            except TimeoutError as e:
+            except TimeoutError:
                 self.page_loaded = True
                 return
             except NoPageError as e:

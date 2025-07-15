@@ -3,13 +3,10 @@ import os
 from typing import Any
 from langchain_openai import (
     ChatOpenAI,
-    OpenAI,
     OpenAIEmbeddings,
     AzureChatOpenAI,
     AzureOpenAIEmbeddings,
-    AzureOpenAI,
 )
-from langchain_community.llms.ollama import Ollama
 from langchain_ollama import ChatOllama
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_anthropic import ChatAnthropic
@@ -66,9 +63,7 @@ def get_api_key(service):
     return (
         dotenv.get_dotenv_value(f"API_KEY_{service.upper()}")
         or dotenv.get_dotenv_value(f"{service.upper()}_API_KEY")
-        or dotenv.get_dotenv_value(
-            f"{service.upper()}_API_TOKEN"
-        )  # Added for CHUTES_API_TOKEN
+        or dotenv.get_dotenv_value(f"{service.upper()}_API_TOKEN")  # Added for CHUTES_API_TOKEN
         or "None"
     )
 
@@ -104,10 +99,7 @@ def parse_chunk(chunk: Any):
 
 # Ollama models
 def get_ollama_base_url():
-    return (
-        dotenv.get_dotenv_value("OLLAMA_BASE_URL")
-        or f"http://{runtime.get_local_url()}:11434"
-    )
+    return dotenv.get_dotenv_value("OLLAMA_BASE_URL") or f"http://{runtime.get_local_url()}:11434"
 
 
 def get_ollama_chat(
@@ -134,9 +126,7 @@ def get_ollama_embedding(
 ):
     if not base_url:
         base_url = get_ollama_base_url()
-    return OllamaEmbeddings(
-        model=model_name, base_url=base_url, num_ctx=num_ctx, **kwargs
-    )
+    return OllamaEmbeddings(model=model_name, base_url=base_url, num_ctx=num_ctx, **kwargs)
 
 
 # HuggingFace models
@@ -168,8 +158,7 @@ def get_huggingface_embedding(model_name: str, **kwargs):
 # LM Studio and other OpenAI compatible interfaces
 def get_lmstudio_base_url():
     return (
-        dotenv.get_dotenv_value("LM_STUDIO_BASE_URL")
-        or f"http://{runtime.get_local_url()}:1234/v1"
+        dotenv.get_dotenv_value("LM_STUDIO_BASE_URL") or f"http://{runtime.get_local_url()}:1234/v1"
     )
 
 
@@ -203,9 +192,7 @@ def get_anthropic_chat(
     if not api_key:
         api_key = get_api_key("anthropic")
     if not base_url:
-        base_url = (
-            dotenv.get_dotenv_value("ANTHROPIC_BASE_URL") or "https://api.anthropic.com"
-        )
+        base_url = dotenv.get_dotenv_value("ANTHROPIC_BASE_URL") or "https://api.anthropic.com"
     return ChatAnthropic(model_name=model_name, api_key=api_key, base_url=base_url, **kwargs)  # type: ignore
 
 
@@ -316,9 +303,7 @@ def get_deepseek_chat(
     if not api_key:
         api_key = get_api_key("deepseek")
     if not base_url:
-        base_url = (
-            dotenv.get_dotenv_value("DEEPSEEK_BASE_URL") or "https://api.deepseek.com"
-        )
+        base_url = dotenv.get_dotenv_value("DEEPSEEK_BASE_URL") or "https://api.deepseek.com"
 
     return ChatOpenAI(api_key=api_key, model=model_name, base_url=base_url, **kwargs)  # type: ignore
 
@@ -333,12 +318,9 @@ def get_openrouter_chat(
     if not api_key:
         api_key = get_api_key("openrouter")
     if not base_url:
-        base_url = (
-            dotenv.get_dotenv_value("OPEN_ROUTER_BASE_URL")
-            or "https://openrouter.ai/api/v1"
-        )
+        base_url = dotenv.get_dotenv_value("OPEN_ROUTER_BASE_URL") or "https://openrouter.ai/api/v1"
     return ChatOpenAI(
-        api_key=api_key, # type: ignore
+        api_key=api_key,  # type: ignore
         model=model_name,
         base_url=base_url,
         stream_usage=True,
@@ -361,10 +343,7 @@ def get_openrouter_embedding(
     if not api_key:
         api_key = get_api_key("openrouter")
     if not base_url:
-        base_url = (
-            dotenv.get_dotenv_value("OPEN_ROUTER_BASE_URL")
-            or "https://openrouter.ai/api/v1"
-        )
+        base_url = dotenv.get_dotenv_value("OPEN_ROUTER_BASE_URL") or "https://openrouter.ai/api/v1"
     return OpenAIEmbeddings(model=model_name, api_key=api_key, base_url=base_url, **kwargs)  # type: ignore
 
 
@@ -379,10 +358,7 @@ def get_sambanova_chat(
     if not api_key:
         api_key = get_api_key("sambanova")
     if not base_url:
-        base_url = (
-            dotenv.get_dotenv_value("SAMBANOVA_BASE_URL")
-            or "https://fast-api.snova.ai/v1"
-        )
+        base_url = dotenv.get_dotenv_value("SAMBANOVA_BASE_URL") or "https://fast-api.snova.ai/v1"
     return ChatOpenAI(api_key=api_key, model=model_name, base_url=base_url, max_tokens=max_tokens, **kwargs)  # type: ignore
 
 
@@ -396,10 +372,7 @@ def get_sambanova_embedding(
     if not api_key:
         api_key = get_api_key("sambanova")
     if not base_url:
-        base_url = (
-            dotenv.get_dotenv_value("SAMBANOVA_BASE_URL")
-            or "https://fast-api.snova.ai/v1"
-        )
+        base_url = dotenv.get_dotenv_value("SAMBANOVA_BASE_URL") or "https://fast-api.snova.ai/v1"
     return OpenAIEmbeddings(model=model_name, api_key=api_key, base_url=base_url, **kwargs)  # type: ignore
 
 
@@ -427,7 +400,5 @@ def get_chutes_chat(
     if not api_key:
         api_key = get_api_key("chutes")
     if not base_url:
-        base_url = (
-            dotenv.get_dotenv_value("CHUTES_BASE_URL") or "https://llm.chutes.ai/v1"
-        )
+        base_url = dotenv.get_dotenv_value("CHUTES_BASE_URL") or "https://llm.chutes.ai/v1"
     return ChatOpenAI(api_key=api_key, model=model_name, base_url=base_url, **kwargs)  # type: ignore

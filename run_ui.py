@@ -1,15 +1,13 @@
 import os
-import sys
 import time
 import socket
 import struct
 from functools import wraps
 import threading
-import signal
 from flask import Flask, request, Response
 from flask_basicauth import BasicAuth
 import initialize
-from python.helpers import errors, files, git, mcp_server
+from python.helpers import files, git, mcp_server
 from python.helpers.files import get_abs_path
 from python.helpers import runtime, dotenv, process
 from python.helpers.extract_tools import load_classes_from_folder
@@ -34,9 +32,7 @@ basic_auth = BasicAuth(webapp)
 
 def is_loopback_address(address):
     loopback_checker = {
-        socket.AF_INET: lambda x: struct.unpack("!I", socket.inet_aton(x))[0]
-        >> (32 - 8)
-        == 127,
+        socket.AF_INET: lambda x: struct.unpack("!I", socket.inet_aton(x))[0] >> (32 - 8) == 127,
         socket.AF_INET6: lambda x: x == "::1",
     }
     address_type = "hostname"
@@ -145,7 +141,7 @@ def run():
     from werkzeug.serving import WSGIRequestHandler
     from werkzeug.serving import make_server
     from werkzeug.middleware.dispatcher import DispatcherMiddleware
-    from a2wsgi import ASGIMiddleware, WSGIMiddleware
+    from a2wsgi import ASGIMiddleware
 
     PrintStyle().print("Starting server...")
 
@@ -155,9 +151,7 @@ def run():
 
     # Get configuration from environment
     port = runtime.get_web_ui_port()
-    host = (
-        runtime.get_arg("host") or dotenv.get_dotenv_value("WEB_UI_HOST") or "localhost"
-    )
+    host = runtime.get_arg("host") or dotenv.get_dotenv_value("WEB_UI_HOST") or "localhost"
     server = None
 
     def register_api_handler(app, handler: type[ApiHandler]):

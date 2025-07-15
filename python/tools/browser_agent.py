@@ -13,6 +13,7 @@ import uuid
 from python.helpers.dirty_json import DirtyJson
 from langchain_core.messages import SystemMessage
 
+
 class State:
     @staticmethod
     async def create(agent: Agent):
@@ -26,7 +27,6 @@ class State:
         self.use_agent = None
         self.browser = None
         self.iter_no = 0
-
 
     def __del__(self):
         self.kill_task()
@@ -59,9 +59,7 @@ class State:
             self.kill_task()
 
         if not self.task:
-            self.task = defer.DeferredTask(
-                thread_name="BrowserAgent" + self.agent.context.id
-            )
+            self.task = defer.DeferredTask(thread_name="BrowserAgent" + self.agent.context.id)
             if self.agent.context.task:
                 self.agent.context.task.add_child_task(self.task, terminate_thread=True)
         self.task.start_task(self._run_task, task)
@@ -145,6 +143,7 @@ class State:
                 if self.iter_no != get_iter_no(self.agent):
                     raise InterventionException("Task cancelled")
                 return await func(*args, **kwargs)
+
             return wrapper
 
         if self.context:
@@ -177,7 +176,7 @@ class BrowserAgent(Tool):
                 screenshot = update.get("screenshot", None)
                 if screenshot:
                     self.log.update(screenshot=screenshot)
-            except Exception as e:
+            except Exception:
                 pass
 
         # collect result
@@ -265,7 +264,7 @@ class BrowserAgent(Tool):
                 if self.state.task:
                     await self.state.task.execute_inside(_get_update)
 
-            except Exception as e:
+            except Exception:
                 pass
 
         return result

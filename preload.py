@@ -28,7 +28,6 @@ async def preload():
                 except Exception as e:
                     PrintStyle().error(f"Error in preload_embedding: {e}")
 
-
         # async tasks to preload
         tasks = [preload_whisper(), preload_embedding()]
 

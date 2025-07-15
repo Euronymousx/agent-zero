@@ -2,13 +2,11 @@ from abc import abstractmethod
 import json
 import threading
 from typing import Union, TypedDict, Dict, Any
-from attr import dataclass
-from flask import Request, Response, jsonify, Flask
+from flask import Request, Response, Flask
 from agent import AgentContext
 from initialize import initialize_agent
 from python.helpers.print_style import PrintStyle
 from python.helpers.errors import format_error
-from werkzeug.serving import make_server
 
 
 Input = dict
@@ -60,9 +58,7 @@ class ApiHandler:
                 return output
             else:
                 response_json = json.dumps(output)
-                return Response(
-                    response=response_json, status=200, mimetype="application/json"
-                )
+                return Response(response=response_json, status=200, mimetype="application/json")
 
             # return exceptions with 500
         except Exception as e:

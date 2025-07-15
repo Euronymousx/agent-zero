@@ -10,9 +10,9 @@ from langchain_community.docstore.in_memory import InMemoryDocstore
 from langchain_community.vectorstores.utils import (
     DistanceStrategy,
 )
-from langchain_core.embeddings import Embeddings
 
-import os, json
+import os
+import json
 
 import numpy as np
 
@@ -21,7 +21,7 @@ from . import files
 from langchain_core.documents import Document
 import uuid
 from python.helpers import knowledge_import
-from python.helpers.log import Log, LogItem
+from python.helpers.log import LogItem
 from enum import Enum
 from agent import Agent, ModelConfig
 import models
@@ -98,9 +98,7 @@ class Memory:
         if log_item:
             log_item.stream(progress="\nInitializing VectorDB")
 
-        em_dir = files.get_abs_path(
-            "memory/embeddings"
-        )  # just caching, no need to parameterize
+        em_dir = files.get_abs_path("memory/embeddings")  # just caching, no need to parameterize
         db_dir = Memory._abs_db_dir(memory_subdir)
 
         # make sure embeddings and database directories exist
@@ -238,9 +236,7 @@ class Memory:
             if index[file]["state"] in ["changed", "removed"] and index[file].get(
                 "ids", []
             ):  # for knowledge files that have been changed or removed and have IDs
-                await self.delete_documents_by_ids(
-                    index[file]["ids"]
-                )  # remove original version
+                await self.delete_documents_by_ids(index[file]["ids"])  # remove original version
             if index[file]["state"] == "changed":
                 index[file]["ids"] = await self.insert_documents(
                     index[file]["documents"]
@@ -291,9 +287,7 @@ class Memory:
         comparator = Memory._get_comparator(filter) if filter else None
 
         # rate limiter
-        await self.agent.rate_limiter(
-            model_config=self.agent.config.embeddings_model, input=query
-        )
+        await self.agent.rate_limiter(model_config=self.agent.config.embeddings_model, input=query)
 
         return await self.db.asearch(
             query,
@@ -303,9 +297,7 @@ class Memory:
             filter=comparator,
         )
 
-    async def delete_documents_by_query(
-        self, query: str, threshold: float, filter: str = ""
-    ):
+    async def delete_documents_by_query(self, query: str, threshold: float, filter: str = ""):
         k = 100
         tot = 0
         removed = []
@@ -387,7 +379,7 @@ class Memory:
         def comparator(data: dict[str, Any]):
             try:
                 return eval(condition, {}, data)
-            except Exception as e:
+            except Exception:
                 # PrintStyle.error(f"Error evaluating condition: {e}")
                 return False
 
@@ -401,9 +393,7 @@ class Memory:
     @staticmethod
     def _cosine_normalizer(val: float) -> float:
         res = (1 + val) / 2
-        res = max(
-            0, min(1, res)
-        )  # float precision can cause values like 1.0000000596046448
+        res = max(0, min(1, res))  # float precision can cause values like 1.0000000596046448
         return res
 
     @staticmethod

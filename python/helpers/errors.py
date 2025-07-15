@@ -15,7 +15,7 @@ def error_text(e: Exception):
 
 def format_error(e: Exception, start_entries=6, end_entries=4):
     # format traceback from the provided exception instead of the most recent one
-    traceback_text = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
+    traceback_text = "".join(traceback.format_exception(type(e), e, e.__traceback__))
     # Split the traceback into lines
     lines = traceback_text.split("\n")
 
@@ -24,9 +24,7 @@ def format_error(e: Exception, start_entries=6, end_entries=4):
     else:
 
         # Find all "File" lines
-        file_indices = [
-            i for i, line in enumerate(lines) if line.strip().startswith("File ")
-        ]
+        file_indices = [i for i, line in enumerate(lines) if line.strip().startswith("File ")]
 
         # If we found at least one "File" line, trim the middle if there are more than start_entries+end_entries lines
         if len(file_indices) > start_entries + end_entries:

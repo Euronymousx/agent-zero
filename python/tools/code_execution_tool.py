@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import shlex
 import time
 from python.helpers.tool import Tool, Response
-from python.helpers import files, rfc_exchange
+from python.helpers import rfc_exchange
 from python.helpers.print_style import PrintStyle
 from python.helpers.shell_local import LocalInteractiveSession
 from python.helpers.shell_ssh import SSHInteractiveSession
@@ -32,13 +32,9 @@ class CodeExecution(Tool):
         session = int(self.args.get("session", 0))
 
         if runtime == "python":
-            response = await self.execute_python_code(
-                code=self.args["code"], session=session
-            )
+            response = await self.execute_python_code(code=self.args["code"], session=session)
         elif runtime == "nodejs":
-            response = await self.execute_nodejs_code(
-                code=self.args["code"], session=session
-            )
+            response = await self.execute_nodejs_code(code=self.args["code"], session=session)
         elif runtime == "terminal":
             response = await self.execute_terminal_command(
                 command=self.args["code"], session=session
@@ -50,9 +46,7 @@ class CodeExecution(Tool):
         elif runtime == "reset":
             response = await self.reset_terminal(session=session)
         else:
-            response = self.agent.read_prompt(
-                "fw.code.runtime_wrong.md", runtime=runtime
-            )
+            response = self.agent.read_prompt("fw.code.runtime_wrong.md", runtime=runtime)
 
         if not response:
             response = self.agent.read_prompt(
@@ -135,9 +129,7 @@ class CodeExecution(Tool):
         command = f"node /exe/node_eval.js {escaped_code}"
         return await self.terminal_session(session, command, reset)
 
-    async def execute_terminal_command(
-        self, session: int, command: str, reset: bool = False
-    ):
+    async def execute_terminal_command(self, session: int, command: str, reset: bool = False):
         return await self.terminal_session(session, command, reset)
 
     async def terminal_session(self, session: int, command: str, reset: bool = False):
@@ -171,9 +163,9 @@ class CodeExecution(Tool):
 
                 self.state.shells[session].send_command(command)
 
-                PrintStyle(
-                    background_color="white", font_color="#1B4F72", bold=True
-                ).print(f"{self.agent.agent_name} code execution output")
+                PrintStyle(background_color="white", font_color="#1B4F72", bold=True).print(
+                    f"{self.agent.agent_name} code execution output"
+                )
                 return await self.get_terminal_output(session)
 
             except Exception as e:
@@ -191,7 +183,7 @@ class CodeExecution(Tool):
         reset_full_output=True,
         first_output_timeout=30,  # Wait up to x seconds for first output
         between_output_timeout=15,  # Wait up to x seconds between outputs
-        max_exec_timeout=180,  #hard cap on total runtime
+        max_exec_timeout=180,  # hard cap on total runtime
         sleep_time=0.1,
     ):
         # Common shell prompt regex patterns (add more as needed)
@@ -232,16 +224,12 @@ class CodeExecution(Tool):
                 for line in last_lines:
                     for pat in prompt_patterns:
                         if pat.search(line.strip()):
-                            PrintStyle.info(
-                                "Detected shell prompt, returning output early."
-                            )
+                            PrintStyle.info("Detected shell prompt, returning output early.")
                             return truncated_output
 
             # Check for max execution time
             if now - start_time > max_exec_timeout:
-                sysinfo = self.agent.read_prompt(
-                    "fw.code.max_time.md", timeout=max_exec_timeout
-                )
+                sysinfo = self.agent.read_prompt("fw.code.max_time.md", timeout=max_exec_timeout)
                 response = self.agent.read_prompt("fw.code.info.md", info=sysinfo)
                 if truncated_output:
                     response = truncated_output + "\n\n" + response

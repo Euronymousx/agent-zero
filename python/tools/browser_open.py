@@ -1,6 +1,4 @@
-import asyncio
-from python.helpers.tool import Tool, Response
-from python.tools import browser
+from python.helpers.tool import Response
 from python.tools.browser import Browser
 
 
@@ -14,7 +12,7 @@ class BrowserOpen(Browser):
             if url:
                 self.update_progress("Opening page...")
                 await self.state.browser.open(url)
-            
+
             self.update_progress("Retrieving...")
             await self.state.browser.wait_for_action()
             response = await self.state.browser.get_clean_dom()

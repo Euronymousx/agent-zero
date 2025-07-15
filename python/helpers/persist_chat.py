@@ -106,18 +106,18 @@ def _serialize_context(context: AgentContext):
         "id": context.id,
         "name": context.name,
         "created_at": (
-            context.created_at.isoformat() if context.created_at
+            context.created_at.isoformat()
+            if context.created_at
             else datetime.fromtimestamp(0).isoformat()
         ),
         "type": context.type.value,
         "last_message": (
-            context.last_message.isoformat() if context.last_message
+            context.last_message.isoformat()
+            if context.last_message
             else datetime.fromtimestamp(0).isoformat()
         ),
         "agents": agents,
-        "streaming_agent": (
-            context.streaming_agent.number if context.streaming_agent else 0
-        ),
+        "streaming_agent": (context.streaming_agent.number if context.streaming_agent else 0),
         "log": _serialize_log(context.log),
     }
 
@@ -137,9 +137,7 @@ def _serialize_agent(agent: Agent):
 def _serialize_log(log: Log):
     return {
         "guid": log.guid,
-        "logs": [
-            item.output() for item in log.logs[-LOG_SIZE:]
-        ],  # serialize LogItem objects
+        "logs": [item.output() for item in log.logs[-LOG_SIZE:]],  # serialize LogItem objects
         "progress": log.progress,
         "progress_no": log.progress_no,
     }
@@ -161,9 +159,7 @@ def _deserialize_context(data):
         ),
         type=AgentContextType(data.get("type", AgentContextType.USER.value)),
         last_message=(
-            datetime.fromisoformat(
-                data.get("last_message", datetime.fromtimestamp(0).isoformat())
-            )
+            datetime.fromisoformat(data.get("last_message", datetime.fromtimestamp(0).isoformat()))
         ),
         log=log,
         paused=False,
@@ -196,9 +192,7 @@ def _deserialize_agents(
             context=context,
         )
         current.data = ag.get("data", {})
-        current.history = history.deserialize_history(
-            ag.get("history", ""), agent=current
-        )
+        current.history = history.deserialize_history(ag.get("history", ""), agent=current)
         if not zero:
             zero = current
 

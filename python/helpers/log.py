@@ -1,6 +1,5 @@
-from dataclasses import dataclass, field
-import json
-from typing import Any, Literal, Optional, Dict
+from dataclasses import dataclass
+from typing import Literal, Optional
 import uuid
 from collections import OrderedDict  # Import OrderedDict
 
@@ -117,9 +116,7 @@ class Log:
             heading=heading or "",
             content=content or "",
             kvps=OrderedDict({**(kvps or {}), **(kwargs or {})}),
-            update_progress=(
-                update_progress if update_progress is not None else "persistent"
-            ),
+            update_progress=(update_progress if update_progress is not None else "persistent"),
             temp=temp if temp is not None else False,
             id=id,  # Pass id to LogItem
         )
@@ -201,4 +198,3 @@ class Log:
                     item.heading,
                     (item.no if item.update_progress == "persistent" else -1),
                 )
-            

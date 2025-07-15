@@ -15,4 +15,3 @@ uv pip install playwright
 #     # for debian based
 #     playwright install --with-deps chromium-headless-shell
 # fi
-

@@ -1,9 +1,6 @@
-import asyncio
 from dataclasses import dataclass
-import time
-from python.helpers.tool import Tool, Response
-from python.helpers import files, rfc_exchange
-from python.helpers.print_style import PrintStyle
+from python.helpers.tool import Tool
+from python.helpers import files
 from python.helpers.browser import Browser as BrowserManager
 import uuid
 
@@ -48,13 +45,18 @@ class Browser(Tool):
 
     def cleanup_history(self):
         def cleanup_message(msg):
-            if not msg.ai and isinstance(msg.content, dict) and "tool_name" in msg.content and str(msg.content["tool_name"]).startswith("browser_"):
+            if (
+                not msg.ai
+                and isinstance(msg.content, dict)
+                and "tool_name" in msg.content
+                and str(msg.content["tool_name"]).startswith("browser_")
+            ):
                 if not msg.summary:
                     msg.summary = "browser content removed to save space"
 
         for msg in self.agent.history.current.messages:
             cleanup_message(msg)
-        
+
         for prev in self.agent.history.topics:
             if not prev.summary:
                 for msg in prev.messages:

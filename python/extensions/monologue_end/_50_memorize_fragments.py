@@ -14,9 +14,7 @@ class MemorizeMemories(Extension):
         # try:
 
         # show temp info message
-        self.agent.context.log.log(
-            type="info", content="Memorizing new information...", temp=True
-        )
+        self.agent.context.log.log(type="info", content="Memorizing new information...", temp=True)
 
         # show full util message, this will hide temp message immediately if turned on
         log_item = self.agent.context.log.log(

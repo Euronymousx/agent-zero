@@ -1,4 +1,3 @@
-from python.helpers import tokens
 from python.helpers.api import ApiHandler
 from flask import Request, Response
 
@@ -11,7 +10,4 @@ class GetHistory(ApiHandler):
         history = agent.history.output_text()
         size = agent.history.get_tokens()
 
-        return {
-            "history": history,
-            "tokens": size
-        }
+        return {"history": history, "tokens": size}

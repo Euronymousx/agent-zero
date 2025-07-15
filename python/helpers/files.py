@@ -1,9 +1,9 @@
 from fnmatch import fnmatch
 import json
-import os, re
+import os
+import re
 import base64
 
-import re
 import shutil
 import tempfile
 import zipfile
@@ -39,9 +39,7 @@ def read_file(_relative_path, _backup_dirs=None, _encoding="utf-8", **kwargs):
     content = replace_placeholders_text(content, **kwargs)
 
     # Process include statements
-    content = process_includes(
-        content, os.path.dirname(_relative_path), _backup_dirs, **kwargs
-    )
+    content = process_includes(content, os.path.dirname(_relative_path), _backup_dirs, **kwargs)
 
     return content
 
@@ -69,7 +67,7 @@ def read_file_base64(_relative_path, _backup_dirs=None):
 
     # read binary content and encode to base64
     with open(absolute_path, "rb") as f:
-        return base64.b64encode(f.read()).decode('utf-8')
+        return base64.b64encode(f.read()).decode("utf-8")
 
 
 def replace_placeholders_text(_content: str, **kwargs):
@@ -101,13 +99,9 @@ def replace_placeholders_dict(_content: dict, **kwargs):
                         if value == f"{{{{{placeholder}}}}}":
                             return replacement
                         elif isinstance(replacement, (dict, list)):
-                            value = value.replace(
-                                f"{{{{{placeholder}}}}}", json.dumps(replacement)
-                            )
+                            value = value.replace(f"{{{{{placeholder}}}}}", json.dumps(replacement))
                         else:
-                            value = value.replace(
-                                f"{{{{{placeholder}}}}}", str(replacement)
-                            )
+                            value = value.replace(f"{{{{{placeholder}}}}}", str(replacement))
             return value
         elif isinstance(value, dict):
             return {k: replace_value(v) for k, v in value.items()}
@@ -126,9 +120,7 @@ def process_includes(_content, _base_path, _backup_dirs, **kwargs):
     def replace_include(match):
         include_path = match.group(1)
         # First attempt to resolve the include relative to the base path
-        full_include_path = find_file_in_dirs(
-            os.path.join(_base_path, include_path), _backup_dirs
-        )
+        full_include_path = find_file_in_dirs(os.path.join(_base_path, include_path), _backup_dirs)
 
         # Recursively read the included file content, keeping the original base path
         included_content = read_file(full_include_path, _backup_dirs, **kwargs)
@@ -160,9 +152,6 @@ def find_file_in_dirs(file_path, backup_dirs):
     )
 
 
-import re
-
-
 def remove_code_fences(text):
     # Pattern to match code fences with optional language specifier
     pattern = r"(```|~~~)(.*?\n)(.*?)(\1)"
@@ -175,9 +164,6 @@ def remove_code_fences(text):
     result = re.sub(pattern, replacer, text, flags=re.DOTALL)
 
     return result
-
-
-import re
 
 
 def is_full_json_template(text):
@@ -249,6 +235,7 @@ def get_base_dir():
     base_dir = os.path.dirname(os.path.abspath(os.path.join(__file__, "../../")))
     return base_dir
 
+
 def is_in_base_dir(path: str):
     # check if the given path is within the base directory
     base_dir = get_base_dir()
@@ -258,7 +245,9 @@ def is_in_base_dir(path: str):
     return os.path.commonpath([abs_path, base_dir]) == base_dir
 
 
-def get_subdirectories(relative_path: str, include: str | list[str] = "*", exclude: str | list[str] | None = None):
+def get_subdirectories(
+    relative_path: str, include: str | list[str] = "*", exclude: str | list[str] | None = None
+):
     abs_path = get_abs_path(relative_path)
     if not os.path.exists(abs_path):
         return []
@@ -294,7 +283,9 @@ def move_file(relative_path: str, new_path: str):
     os.makedirs(os.path.dirname(new_abs_path), exist_ok=True)
     os.rename(abs_path, new_abs_path)
 
-def safe_file_name(filename:str)-> str:
+
+def safe_file_name(filename: str) -> str:
     # Replace any character that's not alphanumeric, dash, underscore, or dot with underscore
     import re
-    return re.sub(r'[^a-zA-Z0-9-._]', '_', filename)
+
+    return re.sub(r"[^a-zA-Z0-9-._]", "_", filename)

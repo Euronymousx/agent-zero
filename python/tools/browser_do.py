@@ -1,8 +1,5 @@
-import asyncio
-from python.helpers.tool import Tool, Response
+from python.helpers.tool import Response
 from python.tools.browser import Browser
-from python.helpers.browser import NoPageError
-import asyncio
 
 
 class BrowserDo(Browser):
@@ -50,7 +47,7 @@ class BrowserDo(Browser):
         except Exception as e:
             response = str(e)
             self.log.update(error=response)
-            
+
             try:
                 screenshot = await self.save_screenshot()
                 dom = await self.state.browser.get_clean_dom()

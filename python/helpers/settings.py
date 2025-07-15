@@ -85,9 +85,7 @@ class SettingsField(TypedDict, total=False):
     id: str
     title: str
     description: str
-    type: Literal[
-        "text", "number", "select", "range", "textarea", "password", "switch", "button"
-    ]
+    type: Literal["text", "number", "select", "range", "textarea", "password", "switch", "button"]
     value: Any
     min: float
     max: float
@@ -439,9 +437,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "description": "Set user password for web UI",
             "type": "password",
             "value": (
-                PASSWORD_PLACEHOLDER
-                if dotenv.get_dotenv_value(dotenv.KEY_AUTH_PASSWORD)
-                else ""
+                PASSWORD_PLACEHOLDER if dotenv.get_dotenv_value(dotenv.KEY_AUTH_PASSWORD) else ""
             ),
         }
     )
@@ -468,25 +464,15 @@ def convert_out(settings: Settings) -> SettingsOutput:
     # api keys model section
     api_keys_fields: list[SettingsField] = []
     api_keys_fields.append(_get_api_key_field(settings, "openai", "OpenAI API Key"))
-    api_keys_fields.append(
-        _get_api_key_field(settings, "anthropic", "Anthropic API Key")
-    )
+    api_keys_fields.append(_get_api_key_field(settings, "anthropic", "Anthropic API Key"))
     api_keys_fields.append(_get_api_key_field(settings, "chutes", "Chutes API Key"))
     api_keys_fields.append(_get_api_key_field(settings, "deepseek", "DeepSeek API Key"))
     api_keys_fields.append(_get_api_key_field(settings, "google", "Google API Key"))
     api_keys_fields.append(_get_api_key_field(settings, "groq", "Groq API Key"))
-    api_keys_fields.append(
-        _get_api_key_field(settings, "huggingface", "HuggingFace API Key")
-    )
-    api_keys_fields.append(
-        _get_api_key_field(settings, "mistralai", "MistralAI API Key")
-    )
-    api_keys_fields.append(
-        _get_api_key_field(settings, "openrouter", "OpenRouter API Key")
-    )
-    api_keys_fields.append(
-        _get_api_key_field(settings, "sambanova", "Sambanova API Key")
-    )
+    api_keys_fields.append(_get_api_key_field(settings, "huggingface", "HuggingFace API Key"))
+    api_keys_fields.append(_get_api_key_field(settings, "mistralai", "MistralAI API Key"))
+    api_keys_fields.append(_get_api_key_field(settings, "openrouter", "OpenRouter API Key"))
+    api_keys_fields.append(_get_api_key_field(settings, "sambanova", "Sambanova API Key"))
 
     api_keys_section: SettingsSection = {
         "id": "api_keys",
@@ -507,8 +493,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "type": "select",
             "value": settings["agent_prompts_subdir"],
             "options": [
-                {"value": subdir, "label": subdir}
-                for subdir in files.get_subdirectories("prompts")
+                {"value": subdir, "label": subdir} for subdir in files.get_subdirectories("prompts")
             ],
         }
     )
@@ -579,9 +564,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "description": "Password for remote function calls. Passwords must match on both instances. RFCs can not be used with empty password.",
             "type": "password",
             "value": (
-                PASSWORD_PLACEHOLDER
-                if dotenv.get_dotenv_value(dotenv.KEY_RFC_PASSWORD)
-                else ""
+                PASSWORD_PLACEHOLDER if dotenv.get_dotenv_value(dotenv.KEY_RFC_PASSWORD) else ""
             ),
         }
     )
@@ -997,12 +980,10 @@ def _apply_settings(previous: Settings | None):
             from python.helpers.mcp_handler import MCPConfig
 
             async def update_mcp_settings(mcp_servers: str):
-                PrintStyle(
-                    background_color="black", font_color="white", padding=True
-                ).print("Updating MCP config...")
-                AgentContext.log_to_all(
-                    type="info", content="Updating MCP settings...", temp=True
+                PrintStyle(background_color="black", font_color="white", padding=True).print(
+                    "Updating MCP config..."
                 )
+                AgentContext.log_to_all(type="info", content="Updating MCP settings...", temp=True)
 
                 mcp_config = MCPConfig.get_instance()
                 try:
@@ -1014,23 +995,23 @@ def _apply_settings(previous: Settings | None):
                         temp=False,
                     )
                     (
-                        PrintStyle(
-                            background_color="red", font_color="black", padding=True
-                        ).print("Failed to update MCP settings")
+                        PrintStyle(background_color="red", font_color="black", padding=True).print(
+                            "Failed to update MCP settings"
+                        )
                     )
                     (
-                        PrintStyle(
-                            background_color="black", font_color="red", padding=True
-                        ).print(f"{e}")
+                        PrintStyle(background_color="black", font_color="red", padding=True).print(
+                            f"{e}"
+                        )
                     )
 
-                PrintStyle(
-                    background_color="#6734C3", font_color="white", padding=True
-                ).print("Parsed MCP config:")
+                PrintStyle(background_color="#6734C3", font_color="white", padding=True).print(
+                    "Parsed MCP config:"
+                )
                 (
-                    PrintStyle(
-                        background_color="#334455", font_color="white", padding=False
-                    ).print(mcp_config.model_dump_json())
+                    PrintStyle(background_color="#334455", font_color="white", padding=False).print(
+                        mcp_config.model_dump_json()
+                    )
                 )
                 AgentContext.log_to_all(
                     type="info", content="Finished updating MCP settings.", temp=True
@@ -1041,14 +1022,14 @@ def _apply_settings(previous: Settings | None):
             )  # TODO overkill, replace with background task
 
         # update token in mcp server
-        current_token = create_auth_token() #TODO - ugly, token in settings is generated from dotenv and does not always correspond
-        if (
-            not previous
-            or current_token != previous["mcp_server_token"]
-        ):
+        current_token = (
+            create_auth_token()
+        )  # TODO - ugly, token in settings is generated from dotenv and does not always correspond
+        if not previous or current_token != previous["mcp_server_token"]:
 
             async def update_mcp_token(token: str):
                 from python.helpers.mcp_server import DynamicMcpProxy
+
                 DynamicMcpProxy.get_instance().reconfigure(token=token)
 
             task3 = defer.DeferredTask().start_task(

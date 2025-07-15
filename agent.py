@@ -1,5 +1,6 @@
 import asyncio
 import nest_asyncio
+
 nest_asyncio.apply()
 
 from collections import OrderedDict
@@ -79,7 +80,7 @@ class AgentContext:
         if not AgentContext._contexts:
             return None
         return list(AgentContext._contexts.values())[0]
-    
+
     @staticmethod
     def all():
         return list(AgentContext._contexts.values())
@@ -97,7 +98,8 @@ class AgentContext:
             "name": self.name,
             "created_at": (
                 Localization.get().serialize_datetime(self.created_at)
-                if self.created_at else Localization.get().serialize_datetime(datetime.fromtimestamp(0))
+                if self.created_at
+                else Localization.get().serialize_datetime(datetime.fromtimestamp(0))
             ),
             "no": self.no,
             "log_guid": self.log.guid,
@@ -106,7 +108,8 @@ class AgentContext:
             "paused": self.paused,
             "last_message": (
                 Localization.get().serialize_datetime(self.last_message)
-                if self.last_message else Localization.get().serialize_datetime(datetime.fromtimestamp(0))
+                if self.last_message
+                else Localization.get().serialize_datetime(datetime.fromtimestamp(0))
             ),
             "type": self.type.value,
         }
@@ -124,7 +127,9 @@ class AgentContext:
     ) -> list[Log.LogItem]:
         items: list[Log.LogItem] = []
         for context in AgentContext.all():
-            items.append(context.log.log(type, heading, content, kvps, temp, update_progress, id, **kwargs))
+            items.append(
+                context.log.log(type, heading, content, kvps, temp, update_progress, id, **kwargs)
+            )
         return items
 
     def kill_process(self):
@@ -158,17 +163,13 @@ class AgentContext:
             while intervention_agent and broadcast_level != 0:
                 intervention_agent.intervention = msg
                 broadcast_level -= 1
-                intervention_agent = intervention_agent.data.get(
-                    Agent.DATA_NAME_SUPERIOR, None
-                )
+                intervention_agent = intervention_agent.data.get(Agent.DATA_NAME_SUPERIOR, None)
         else:
             self.task = self.run_task(self._process_chain, current_agent, msg)
 
         return self.task
 
-    def run_task(
-        self, func: Callable[..., Coroutine[Any, Any, Any]], *args: Any, **kwargs: Any
-    ):
+    def run_task(self, func: Callable[..., Coroutine[Any, Any, Any]], *args: Any, **kwargs: Any):
         if not self.task:
             self.task = DeferredTask(
                 thread_name=self.__class__.__name__,
@@ -279,9 +280,7 @@ class Agent:
     DATA_NAME_SUBORDINATE = "_subordinate"
     DATA_NAME_CTX_WINDOW = "ctx_window"
 
-    def __init__(
-        self, number: int, config: AgentConfig, context: AgentContext | None = None
-    ):
+    def __init__(self, number: int, config: AgentConfig, context: AgentContext | None = None):
 
         # agent config
         self.config = config
@@ -352,9 +351,7 @@ class Agent:
                             # Append warning message to the history
                             warning_msg = self.read_prompt("fw.msg_repeat.md")
                             self.hist_add_warning(message=warning_msg)
-                            PrintStyle(font_color="orange", padding=True).print(
-                                warning_msg
-                            )
+                            PrintStyle(font_color="orange", padding=True).print(warning_msg)
                             self.context.log.log(type="warning", content=warning_msg)
 
                         else:  # otherwise proceed with tool
@@ -366,7 +363,7 @@ class Agent:
                                 return tools_result  # break the execution if the task is done
 
                     # exceptions inside message loop:
-                    except InterventionException as e:
+                    except InterventionException:
                         pass  # intervention message has been handled in handle_intervention(), proceed with conversation loop
                     except RepairableException as e:
                         # Forward repairable errors to the LLM, maybe it can fix them
@@ -380,12 +377,10 @@ class Agent:
 
                     finally:
                         # call message_loop_end extensions
-                        await self.call_extensions(
-                            "message_loop_end", loop_data=self.loop_data
-                        )
+                        await self.call_extensions("message_loop_end", loop_data=self.loop_data)
 
             # exceptions outside message loop:
-            except InterventionException as e:
+            except InterventionException:
                 pass  # just start over
             except Exception as e:
                 self.handle_critical_exception(e)
@@ -414,10 +409,14 @@ class Agent:
         # for extra in loop_data.extras_temporary.values():
         #     extras += history.Message(False, content=extra).output()
         extras = history.Message(
-            False, 
-            content=self.read_prompt("agent.context.extras.md", extras=dirty_json.stringify(
-                {**loop_data.extras_persistent, **loop_data.extras_temporary}
-                ))).output()
+            False,
+            content=self.read_prompt(
+                "agent.context.extras.md",
+                extras=dirty_json.stringify(
+                    {**loop_data.extras_persistent, **loop_data.extras_temporary}
+                ),
+            ),
+        ).output()
         loop_data.extras_temporary.clear()
 
         # convert history + extras to LLM format
@@ -456,9 +455,7 @@ class Agent:
             PrintStyle(font_color="white", background_color="red", padding=True).print(
                 f"Context {self.context.id} terminated during message loop"
             )
-            raise HandledException(
-                exception
-            )  # Re-raise the exception to cancel the loop
+            raise HandledException(exception)  # Re-raise the exception to cancel the loop
         else:
             # Handling for general exceptions
             error_text = errors.error_text(exception)
@@ -512,9 +509,7 @@ class Agent:
     def set_data(self, field: str, value):
         self.data[field] = value
 
-    def hist_add_message(
-        self, ai: bool, content: history.MessageContent, tokens: int = 0
-    ):
+    def hist_add_message(self, ai: bool, content: history.MessageContent, tokens: int = 0):
         self.last_message = datetime.now(timezone.utc)
         return self.history.add_message(ai=ai, content=content, tokens=tokens)
 
@@ -527,14 +522,14 @@ class Agent:
                 "fw.intervention.md",
                 message=message.message,
                 attachments=message.attachments,
-                system_message=message.system_message
+                system_message=message.system_message,
             )
         else:
             content = self.parse_prompt(
                 "fw.user_message.md",
                 message=message.message,
                 attachments=message.attachments,
-                system_message=message.system_message
+                system_message=message.system_message,
             )
 
         # remove empty parts from template
@@ -561,9 +556,7 @@ class Agent:
         )
         return self.hist_add_message(False, content=content)
 
-    def concat_messages(
-        self, messages
-    ):  # TODO add param for message range, topic, history
+    def concat_messages(self, messages):  # TODO add param for message range, topic, history
         return self.history.output_text(human_label="user", ai_label="assistant")
 
     def get_chat_model(self):
@@ -607,9 +600,7 @@ class Agent:
         model = self.get_utility_model()
 
         # rate limiter
-        limiter = await self.rate_limiter(
-            self.config.utility_model, prompt.format(), background
-        )
+        limiter = await self.rate_limiter(self.config.utility_model, prompt.format(), background)
 
         async for chunk in (prompt | model).astream({}):
             await self.handle_intervention()  # wait for intervention and handle it, if paused
@@ -648,9 +639,7 @@ class Agent:
 
         return response
 
-    async def rate_limiter(
-        self, model_config: ModelConfig, input: str, background: bool = False
-    ):
+    async def rate_limiter(self, model_config: ModelConfig, input: str, background: bool = False):
         # rate limiter log
         wait_log = None
 
@@ -683,9 +672,7 @@ class Agent:
     async def handle_intervention(self, progress: str = ""):
         while self.context.paused:
             await asyncio.sleep(0.1)  # wait if paused
-        if (
-            self.intervention
-        ):  # if there is an intervention message, but not yet processed
+        if self.intervention:  # if there is an intervention message, but not yet processed
             msg = self.intervention
             self.intervention = None  # reset the intervention message
             if progress.strip():
@@ -705,26 +692,27 @@ class Agent:
         if tool_request is not None:
             raw_tool_name = tool_request.get("tool_name", "")  # Get the raw tool name
             tool_args = tool_request.get("tool_args", {})
-            
+
             tool_name = raw_tool_name  # Initialize tool_name with raw_tool_name
             tool_method = None  # Initialize tool_method
 
             # Split raw_tool_name into tool_name and tool_method if applicable
             if ":" in raw_tool_name:
                 tool_name, tool_method = raw_tool_name.split(":", 1)
-            
+
             tool = None  # Initialize tool to None
 
             # Try getting tool from MCP first
             try:
-                import python.helpers.mcp_handler as mcp_helper 
+                import python.helpers.mcp_handler as mcp_helper
+
                 mcp_tool_candidate = mcp_helper.MCPConfig.get_instance().get_tool(self, tool_name)
                 if mcp_tool_candidate:
                     tool = mcp_tool_candidate
             except ImportError:
                 PrintStyle(background_color="black", font_color="yellow", padding=True).print(
                     "MCP helper module not found. Skipping MCP tool lookup."
-                 )
+                )
             except Exception as e:
                 PrintStyle(background_color="black", font_color="red", padding=True).print(
                     f"Failed to get MCP tool '{tool_name}': {e}"
@@ -732,7 +720,9 @@ class Agent:
 
             # Fallback to local get_tool if MCP tool was not found or MCP lookup failed
             if not tool:
-                tool = self.get_tool(name=tool_name, method=tool_method, args=tool_args, message=msg)
+                tool = self.get_tool(
+                    name=tool_name, method=tool_method, args=tool_args, message=msg
+                )
 
             if tool:
                 await self.handle_intervention()
@@ -748,15 +738,14 @@ class Agent:
                 error_detail = f"Tool '{raw_tool_name}' not found or could not be initialized."
                 self.hist_add_warning(error_detail)
                 PrintStyle(font_color="red", padding=True).print(error_detail)
-                self.context.log.log(
-                    type="error", content=f"{self.agent_name}: {error_detail}"
-                )
+                self.context.log.log(type="error", content=f"{self.agent_name}: {error_detail}")
         else:
             warning_msg_misformat = self.read_prompt("fw.msg_misformat.md")
             self.hist_add_warning(warning_msg_misformat)
             PrintStyle(font_color="red", padding=True).print(warning_msg_misformat)
             self.context.log.log(
-                type="error", content=f"{self.agent_name}: Message misformat, no valid tool request found."
+                type="error",
+                content=f"{self.agent_name}: Message misformat, no valid tool request found.",
             )
 
     def log_from_stream(self, stream: str, logItem: Log.LogItem):
@@ -767,18 +756,18 @@ class Agent:
             if isinstance(response, dict):
                 # log if result is a dictionary already
                 logItem.update(content=stream, kvps=response)
-        except Exception as e:
+        except Exception:
             pass
 
     def get_tool(self, name: str, method: str | None, args: dict, message: str, **kwargs):
         from python.tools.unknown import Unknown
         from python.helpers.tool import Tool
 
-        classes = extract_tools.load_classes_from_folder(
-            "python/tools", name + ".py", Tool
-        )
+        classes = extract_tools.load_classes_from_folder("python/tools", name + ".py", Tool)
         tool_class = classes[0] if classes else Unknown
-        return tool_class(agent=self, name=name, method=method, args=args, message=message, **kwargs)
+        return tool_class(
+            agent=self, name=name, method=method, args=args, message=message, **kwargs
+        )
 
     async def call_extensions(self, folder: str, **kwargs) -> Any:
         from python.helpers.extension import Extension

@@ -5,6 +5,7 @@ from agent import LoopData
 
 DATA_NAME_TASK = "_recall_memories_task"
 
+
 class RecallMemories(Extension):
 
     INTERVAL = 3
@@ -22,7 +23,6 @@ class RecallMemories(Extension):
 
         # set to agent to be able to wait for it
         self.agent.set_data(DATA_NAME_TASK, task)
-            
 
     async def search_memories(self, loop_data: LoopData, **kwargs):
 
@@ -33,9 +33,7 @@ class RecallMemories(Extension):
 
         # try:
         # show temp info message
-        self.agent.context.log.log(
-            type="info", content="Searching memories...", temp=True
-        )
+        self.agent.context.log.log(type="info", content="Searching memories...", temp=True)
 
         # show full util message, this will hide temp message immediately if turned on
         log_item = self.agent.context.log.log(
@@ -47,10 +45,8 @@ class RecallMemories(Extension):
         # msgs_text = self.agent.concat_messages(
         #     self.agent.history[-RecallMemories.HISTORY :]
         # )  # only last X messages
-        msgs_text = self.agent.history.output_text()[-RecallMemories.HISTORY:]
-        system = self.agent.read_prompt(
-            "memory.memories_query.sys.md", history=msgs_text
-        )
+        msgs_text = self.agent.history.output_text()[-RecallMemories.HISTORY :]
+        system = self.agent.read_prompt("memory.memories_query.sys.md", history=msgs_text)
 
         # log query streamed by LLM
         async def log_callback(content):

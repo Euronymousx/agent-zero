@@ -1,5 +1,4 @@
-from agent import Agent, UserMessage
-from python.helpers.tool import Tool, Response
+from python.helpers.tool import Tool
 from python.tools.code_execution_tool import CodeExecution
 
 
@@ -9,7 +8,7 @@ class Input(Tool):
         # normalize keyboard input
         keyboard = keyboard.rstrip()
         keyboard += "\n"
-        
+
         # terminal session number
         session = int(self.args.get("session", 0))
 
@@ -20,7 +19,12 @@ class Input(Tool):
         return await cet.execute(**args)
 
     def get_log_object(self):
-        return self.agent.context.log.log(type="code_exe", heading=f"{self.agent.agent_name}: Using tool '{self.name}'", content="", kvps=self.args)
+        return self.agent.context.log.log(
+            type="code_exe",
+            heading=f"{self.agent.agent_name}: Using tool '{self.name}'",
+            content="",
+            kvps=self.args,
+        )
 
     async def after_execution(self, response, **kwargs):
         self.agent.hist_add_tool_result(self.name, response.message)
